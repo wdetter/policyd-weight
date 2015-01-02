@@ -1,0 +1,89 @@
+policyd-weight (0.1.15.2-9) unstable; urgency=low
+
+  * Add 11_fix_ipv6_socket_creation.patch which fixes socket creation if local
+    dns ip address is IPv6 address (Closes: #763986)
+  * Updated standard version to 3.9.6
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Sat,  4 Oct 2014 15:46:19 +0100
+
+policyd-weight (0.1.15.2-8) unstable; urgency=low
+
+  * Add 10_replace_net_dns_dn_expand.patch which replaces Net::DNS::Packet
+    function dh_expand() with dh_expand_PP() (Closes: #752845)
+  * Fixed description in 09_fix_net_dns_usage.patch
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Sat, 28 Jun 2014 09:28:19 +0100
+
+policyd-weight (0.1.15.2-7) unstable; urgency=low
+
+  * Correct 09_fix_net_dns_usage.patch logic
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Sun, 15 Dec 2013 17:05:19 +0100
+
+policyd-weight (0.1.15.2-6) unstable; urgency=low
+
+  * Updated standards version to 3.9.5	
+  * debian/control added dependency on libio-socket-inet6-perl
+  * debian/init.d removed internal api call /lib/init/vars.sh from init script
+  * Add 09_fix_net_dns_usage.patch which fixes infinite loop when dns resolver
+    is reachable only via IPv6 (Closes: #726670)
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Sun, 15 Dec 2013 17:05:19 +0100
+
+policyd-weight (0.1.15.2-5) unstable; urgency=high
+	
+  * Add 08_del_dnsbl.njabl.org.patch which removes dnsbl.njabl.org list due
+    to service shutdown on 2013-03-01 (Closes: #702838)
+  * Bumped standard versions to 3.9.4
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Tue, 12 Mar 2013 20:23:14 +0100
+
+policyd-weight (0.1.15.2-4) unstable; urgency=low
+	
+  * Add 07_del_rfc-ignorant.org.patch which removes rfc-ignorant.org 
+    lists due to service shut down on 2012-11-30
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Mon, 17 Sep 2012 09:32:23 +0100
+
+policyd-weight (0.1.15.2-3) unstable; urgency=low
+	
+  * Updating standards version to 3.9.3
+  * Fixed 02_cacherejectmsg.patch (modify $CACHEREJECTMSG instead
+    of $REJECTMSG), thanks to Marcel Meckel (Closes: #598844) 
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Sun, 19 Aug 2012 12:20:23 +0100
+
+policyd-weight (0.1.15.2-2) unstable; urgency=low
+
+  * Add 05_fix_issuing_group.patch - use getgrgid() instead of getpwuid()
+    for mapping the group id into group name. Thanks to Heiko Schlittermann
+    (Closes: #641538)
+  * Add 06_del_non_func_ipv6_dnsbl.patch which removes non-functional DNSBL
+    rbl.ipv6-world.net
+  * Add debian/default
+  * Modified init script
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Tue, 24 Jan 2012 16:41:52 +0100
+
+policyd-weight (0.1.15.2-1) unstable; urgency=low
+
+  * New upstream release
+    - non functional DNSBL rbl.ipv6-world.net now deactivated by default
+      (Closes: #641227)
+    - Socket for cache communication is now chowned by the right group
+      (Closes: #641539)
+  * New Maintainer (Closes: #612734)
+  * Switch to dpkg-source 3.0 (quilt) format
+    - Recreated existing patches with quilt
+    - Add 03_fix_perl_warnings.patch which fixes Perl warnings in debug mode,
+      thanks to Heiko Schlittermann (Closes: #641544)
+    - Removed 02_enable_ipv6.dpatch as IPv6 is now supported by default
+    - Deleted README.source
+  * Updating standards version to 3.9.2
+  * debian/control Vcs-Fields removed
+  * debian/copyright revised for DEP5 specifications
+  * debian/init.d created lsb-base init script 
+  * debian/postinst removed lapsed version-checks 
+  * Add 04_fix_spelling_man.patch which fixes some spelling in the manpages
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Mon, 02 Jan 2012 10:14:52 +0100
