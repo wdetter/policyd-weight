@@ -69,7 +69,6 @@ use File::Spec;
 use Sys::Syslog qw(:DEFAULT setlogsock);
 use Net::DNS;
 use Net::IP;
-use Net::DNS::Packet;
 use IO::Socket::INET;
 use IO::Socket::UNIX;
 use IO::Select;
