@@ -389,8 +389,7 @@ my $MAXDNSBLMSG   = '550 Your MTA is listed in too many DNSBLs';
 
 ## RHSBL settings
 my @rhsbl_score = (
-    'multi.surbl.org',             4,        0,        'SURBL',
-    'rhsbl.ahbl.org',              4,        0,        'AHBL'
+    'multi.surbl.org',             4,        0,        'SURBL'
 );
 
 my $BL_ERROR_SKIP     = 2;  # skip a RBL if this RBL had this many continuous
@@ -483,6 +482,10 @@ my $TRY_BALANCE     = 0;    # If set to 1 policyd-weight closes connections
                             # to smtpd clients in order to avoid too many
                             # established connections to one policyd-weight
                             # child
+
+my $IGNORE_RFC1918_A = 0;   # If enabled (1) A records with RFC1918 addresses
+			    # aren't treated as bogus addresses by policyd-weight
+		            # and therefore bogus_mx_score isn't added.
 
 # scores for checks, WARNING: they may manipulate eachother
 # or be factors for other scores.
@@ -2209,8 +2212,18 @@ sub weighted_check
                         
                             if($tmpcnt == 0)
                             {
-                                $from_addresses .= ' '.$ip_address;
-                            }
+				if($IGNORE_RFC1918_A == 1)
+                                {
+                                    if($ip_address !~ /(127\.|192\.168\.|10\.|172\.(?:1[6-9]|2\d|3[01])\.)/)
+                                    {
+                                        $from_addresses .= ' '.$ip_address;
+                                    }
+                                }
+                                else
+                                {
+                                    $from_addresses .= ' '.$ip_address;
+				}
+			    }
 
                             $addresses .= ' '.$ip_address;
                         
@@ -3618,7 +3631,8 @@ sub rbl_lookup
             my    ($id, $bf, $qc, $anc, $nsc, $arc, $qb) = 
             unpack('n   n    n    n     n     n     a*', $buf);
 
-            my ($dn, $offset) = Net::DNS::Packet::dn_expand_PP(\$qb, 0);
+	    my ($decoded, $offset) = decode Net::DNS::DomainName(\$qb);
+            my $dn = $decoded->name;
 
             if(($id && $anc) && ($id == $oid) && ($query eq $dn))
             {

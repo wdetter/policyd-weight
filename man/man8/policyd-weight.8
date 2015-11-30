@@ -1,0 +1,170 @@
+.TH policyd-weight 8 "Aug 25th, 2006"
+.SH "NAME"
+policyd-weight \- weighted SMTP policy daemon
+
+.SH "STATUS"
+Beta, Documentation incomplete
+
+.SH "SYNOPSIS"
+.na
+.nf
+.fi
+\fBpolicyd-weight\fR [\fB-option\fR] [\fB-option2 <arg>\fR] \fIcommand\fR
+
+.SH "DESCRIPTION"
+.ad
+.fi
+\fBpolicyd-weight\fR(8) is a SMTP policy daemon written in \fBperl\fR(1) for 
+\fBpostfix\fR(1). It
+evaluates based on RBL/RHSBL results, HELO and MAIL FROM domain and subdomain
+arguments and the client IP address the possibility of forgery or SPAM. It is
+designed to be called before the SMTP DATA command at the RCPT TO stage. 
+This way it is a) possible
+to reject a mail attempt before the body has been received and b) to keep
+multirecipient mail intact, i.e. provide the functionality of selective usage
+based on recipients.
+
+To make \fBpolicyd-weight\fR(8) work with \fBpostfix\fR(1), it is required to 
+add a system 
+account for $USER (default: polw)
+
+Policyd-weight can operate in master.cf \fBor\fR daemon mode. In master.cf
+mode it uses postfix' \fBspawn\fR(8), which results in number of simultanous 
+requests perl instances. In daemon mode it uses shared memory and forks on 
+load, and only if all child processes are busy.
+
+At the time of writing the man-pages for policyd-weight assume a postfix
+installation. It has been reported that policyd-weight works with other MTAs
+like Exim, too.
+
+.SH "SETUP"
+.SH "master.cf mode:"
+.IP "\fBmaster.cf:\fR"
+.in -7
+policy   unix   -   n   n   -   -   spawn   user=polw    
+.br    
+\ \ \ argv=/usr/bin/perl /usr/local/bin/policyd-weight
+.IP "\fBmain.cf:\fR"
+.in -7
+smtpd_recipient_restrictions =
+.br
+\ \ \ permit_mynetworks, 
+.br
+\ \ \ ... authenticated permits ...
+.br
+\ \ \ reject_unauth_destination,
+.br
+\ \ \ ... whitelists, role accounts, clients ...
+.br
+\ \ \ check_policy_service unix:private/policy
+.br
+.in 7
+
+.SH "daemon mode:"
+start the daemon with \fBpolicyd-weight start\fR. Poliyd-weight then listens
+on $TCP_PORT (default: 12525)  for policy requests.
+To make postfix talk to that port do following changes to main.cf:
+.IP "\fBmain.cf:\fR"
+.in -7
+smtpd_recipient_restrictions =
+.br
+\ \ \ permit_mynetworks,
+.br
+\ \ \ ... authenticated permits ...
+.br
+\ \ \ reject_unauth_destination,
+.br
+\ \ \ ... whitelists, role accounts, clients ...
+.br
+\ \ \ check_policy_service inet:127.0.0.1:12525
+.br
+.in 7
+
+It is possible to have more than one postfix server talk to the 
+\fBdaemonized\fR policyd-weight by configuring each postfix machine to query
+the policy server with check_policy_service inet:IP:12525 where IP is the
+host on which policyd-weight runs.
+
+
+Please note that \fBcheck_policy_service\fR should come at last, or at least
+\fBafter\fR reject_unauth_destination, or else you may become an open relay.
+.SH "COMMANDS"
+.ad
+.fi
+Following commands exist and are reserved for daemon mode only:
+.IP "\fBstart\fR     start the policy server"
+.IP "\fBstop\fR      stop the policy server"
+.IP "\fBrestart\fR   restart the policy server"
+.IP "\fBreload\fR    tells the policy server to reload its configuration"
+.IP "\fBdefaults\fR  prints the default settings to STDOUT and exits"
+
+.SH "OPTIONS"
+.ad
+.fi
+.IP "\fB-d\fR operate in debug mode"
+\fBNot for use in master.cf\fR.
+In debug mode everything is reported on STDOUT instead of \fBsyslog\fR(3).
+Also an own debug cache daemon will be spawned. The socket-file is
+named after the value of $SPATH with ".debug" as suffix.
+
+.IP "\fB-f\fR /path/to/file 
+Pass a configuration file to policyd-weight
+
+.IP "\fB-h\fR show help"
+
+.IP "\fB-k\fR kill cache daemon"
+\fBNot for use in master.cf\fR.
+Together with \fB-d\fR this kills the debug cache daemon. Without \fB-d\fR it
+kills the global running cache daemon.
+
+.IP "\fB-s\fR show cache entries"
+\fBNot for use in master.cf\fR.
+
+.IP "\fB-v\fR show version"
+
+.SH "LOGGING"
+.ad
+.fi
+Logging is done via \fBsyslog\fR(3) with facility "mail" and priority 
+"info". For a complete list of log entries and their correspondending configuration parameters refer to \fBpolicyd-weight.conf\fR(5).
+
+.SH "BUGS"
+.na
+.nf
+Please report bugs to r.felber@ek-muc.de
+
+.SH "HISTORY"
+.ad
+.fi
+.IP "March 2005"
+Ralf Hildebrandt (Author of the Book of Postfix) is the spiritual father
+of policyd-weight. It was his idea to have a scored RBL evaluation, I've
+added the weighted MAIL FROM/HELO DNS-evaluation. For that purpose I used
+Meng Wong's spf.pl which was shipped with the postfix source as example.
+
+.SH "FILES"
+.na
+.nf
+/etc/policyd-weight.conf, Policyd-weight configuration file
+/etc/postfix/main.cf, Postfix configuration parameters
+/etc/postfix/master.cf, Postfix daemon processes
+.fi
+
+.SH "SEE ALSO"
+.na
+.nf
+policyd-weight.conf(5), Policyd-weight configuration file
+master(5), Postfix master.cf file syntax
+postconf(5), Postfix main.cf file syntax
+access(5), Postfix SMTP access control table
+
+.SH "LICENSE"
+.na
+.nf
+GNU General Public License 
+.SH "AUTHOR"
+.na
+.nf
+Robert Felber <r.felber@ek-muc.de>
+Autohaus Erich Kuttendreier
+81827 Munich, Germany

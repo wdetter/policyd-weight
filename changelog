@@ -1,3 +1,35 @@
+policyd-weight (0.1.15.2-11) unstable; urgency=low
+
+  * debian/postrm
+    + Fix command-with-path-in-maintainer-script
+  * debian/init.d
+    + Updated LSB header
+  * debian/rules
+    + Add dh_lintian
+  * Add debian/source.lintian-overrides
+    + override for debian-watch-may-check-gpg-signature as upstream does
+      not provide cryptographic signature
+  * Update to debhelper 9
+  * Updated 10_replace_net_dns_dn_expand.patch to use official replacement
+    Net::DNS::DomainName::decode for Net::DNS::Packet::dn_expand
+  * Add 13_fix_default_rhsbl_dnsbl_in_man5.patch which updates default
+    dnsbls/rhsbls in man5 manpage
+  * Add 14_ignore_rfc1918_a_records_config_option.patch which introduces
+    new config config option $IGNORE_RFC1918_A. If enabled A records with
+    RFC1918 addresses aren't treated as bogus addresses by policyd-weight
+    and therefore bogus_mx_score is not added. Updated sample configuration
+    and man5 manpage (Closes: #799314)
+  * Add closing bug in previous changelog entry
+	
+ -- Werner Detter <werner@aloah-from-hell.de>  Mon, 30 Nov 2015 21:35:14 +0100
+
+policyd-weight (0.1.15.2-10) unstable; urgency=low
+
+  * Add 12_del_rhsbl.ahbl.org.patch which removes rhsbl.ahbl.org list due
+    to service shutdown (Closes: #774772)
+	
+ -- Werner Detter <werner@aloah-from-hell.de>  Wed,  7 Jan 2015 07:30:14 +0100
+
 policyd-weight (0.1.15.2-9) unstable; urgency=low
 
   * Add 11_fix_ipv6_socket_creation.patch which fixes socket creation if local
@@ -87,3 +119,165 @@ policyd-weight (0.1.15.2-1) unstable; urgency=low
   * Add 04_fix_spelling_man.patch which fixes some spelling in the manpages
 
  -- Werner Detter <werner@aloah-from-hell.de>  Mon, 02 Jan 2012 10:14:52 +0100
+
+policyd-weight (0.1.15.1-3) unstable; urgency=low
+
+  * Orphan the package.
+  * Add 03_cacherejectmsg.dpatch, to have a more verbose reject message on
+    cache hit, thanks Martin F. Krafft (Closes: #598844)
+  * Updating standards version to 3.9.1
+    - use dh_prep instead of dh_clean -k
+  * Update to debhelper 7
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 10 Feb 2011 10:38:35 +0100
+
+policyd-weight (0.1.15.1-2) unstable; urgency=low
+
+  * Updating standards version to 3.8.4
+    - Add README.source
+  * Migrate Vcs-Fields over to scm.uncompleted.org
+  * Add 1.0 to debian/source/format
+  * Add ${misc:Depends} to dependencies
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 10 Mar 2010 12:21:52 +0100
+
+policyd-weight (0.1.15.1-1) experimental; urgency=low
+
+  * integrate the development script into our rebuild upstream tarball
+    - drop 02_remove_dsbl.dpatch and 03_0.1.15.1.dpatch
+  * add 02_enable_ipv6.dpatch to make use of the IPv6 code
+
+ -- Jan Wagner <waja@cyconet.org>  Mon, 29 Sep 2008 22:32:36 +0200
+
+policyd-weight (0.1.14.17+0.1.15.1-1) experimental; urgency=low
+
+  * new upstream release
+    - add 03_0.1.15.1.dpatch, since no tarball is available
+  * remove 03_ipv6_support.dpatch, cause integrated upstream
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 24 Sep 2008 12:21:07 +0200
+
+policyd-weight (0.1.14.17-10) experimental; urgency=low
+
+  * add support for IPv6 Helo and RBL checks (Closes: #483864).
+  * depend on libnet-ip-perl
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 24 Sep 2008 12:18:08 +0200
+
+policyd-weight (0.1.14.17-4) unstable; urgency=low
+
+  * Remove list.dsbl.org from default DNSBL list (Closes: #498037).
+  * Leave hint about blocking lists in README.Debian
+
+ -- Jan Wagner <waja@cyconet.org>  Sun, 07 Sep 2008 13:49:39 +0200
+
+policyd-weight (0.1.14.17-3) unstable; urgency=low
+
+  * Updating standards version to 3.8.0, no changes needed
+  * implement machine-interpretable copyright file
+
+ -- Jan Wagner <waja@cyconet.org>  Sun, 20 Jul 2008 13:34:54 +0200
+
+policyd-weight (0.1.14.17-2) unstable; urgency=low
+
+  * add conditional deluser and delgroup in postrm
+  * bump copyright of packaging to 2008 and remove trailing whitespaces
+  * add CVE into the changelog entries
+
+ -- Jan Wagner <waja@cyconet.org>  Mon, 14 Apr 2008 23:28:12 +0200
+
+policyd-weight (0.1.14.17-1) unstable; urgency=high
+
+  * new upstream release
+    - fixes insecure temporary file vulnerability, previous releases doesn't
+      really does (CVE-2008-1570)
+  * adjust initscript to return 0 on exit when using stop target and daemon
+    isn't running anymore (Closes: #473225).
+  * add dpatch infrastructure to package (depency to dpatch and adjusted
+    rules)
+  * add 01_change_lockpath.dpatch to use proper location for lockpath to
+    prevent security mess with permissions in unsecure directory
+
+ -- Jan Wagner <waja@cyconet.org>  Sun, 30 Mar 2008 01:10:45 +0100
+
+policyd-weight (0.1.14.15-1) unstable; urgency=high
+
+  * new upstream release
+    - fixes insecure temporary file vulnerability (CVE-2008-1569)
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 26 Mar 2008 01:58:34 +0100
+
+policyd-weight (0.1.14.14-2) unstable; urgency=medium
+
+  * remove c&p fault from postrm which causes accidently remove files not
+    related to this package
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 12 Mar 2008 00:37:24 +0100
+
+policyd-weight (0.1.14.14-1) unstable; urgency=low
+
+  * new upstream (Closes: #451358).
+  * remove patches, we are on upstream tarball again
+  * remove dpatch as builddep and from rules
+  * added Vcs- fields, moved Homepage into source header's field
+  * bump standards version to 3.7.3
+  * include cstop/crestart into init script for stoping cache instance
+    (Closes: #461124).
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 14 Feb 2008 20:01:13 +0100
+
+policyd-weight (0.1.14.5+0.1.14.12-1) experimental; urgency=low
+
+  * switch to recent development version to get more up to date checks
+  * include and depend on dpatch
+  * this version provides a workaround for #451358 (Closes: #451358).
+
+ -- Jan Wagner <waja@cyconet.org>  Mon, 16 Jul 2007 10:13:21 +0200
+
+policyd-weight (0.1.14.5-1) unstable; urgency=low
+
+  * switch to recent development version to get more up to date checks
+  * drop ordb patch, included into upstream
+
+ -- Jan Wagner <waja@cyconet.org>  Mon, 16 Jul 2007 10:13:21 +0200
+
+policyd-weight (0.1.14-beta-6) unstable; urgency=medium
+
+  * fix upgrade path for initscript
+  * changed init scripts to 19 21 to make shure postfix is not running when
+    polw not
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 20 Dec 2006 19:55:38 +0100
+
+policyd-weight (0.1.14-beta-5) unstable; urgency=medium
+
+  * add remove_ordb.diff to remove ORDB DNSBL from default config since they
+    got offline today
+
+ -- Jan Wagner <waja@cyconet.org>  Mon, 18 Dec 2006 00:05:29 +0100
+
+policyd-weight (0.1.14-beta-4) unstable; urgency=medium
+
+  * fix startup script S20, so make polw start before postfix
+  * provide update path via postinst
+
+ -- Jan Wagner <waja@cyconet.org>  Sun, 17 Dec 2006 14:19:46 +0100
+
+policyd-weight (0.1.14-beta-3) unstable; urgency=medium
+
+  * fixed attributes of system user (Closes: #402314).
+
+ -- Jan Wagner <waja@cyconet.org>  Fri, 24 Nov 2006 21:55:27 +0100
+
+policyd-weight (0.1.14-beta-2) unstable; urgency=medium
+
+  * removed libsys-syslog-perl from Depencies and add to Recommends
+  * fixed watch file
+
+ -- Jan Wagner <waja@cyconet.org>  Sun, 12 Nov 2006 22:17:36 +0100
+
+policyd-weight (0.1.14-beta-1) unstable; urgency=low
+
+  * Initial release (Closes: #397704).
+
+ -- Jan Wagner <waja@cyconet.org>  Wed,  8 Nov 2006 22:44:24 +0100
