@@ -1,0 +1,49 @@
+Item                                                Status             Req. for 
+                                                    In Progress:   P   stable
+                                                    Done in devel: D 
+-------------------------------------------------------------------------------
+- introduce IPv6 RBLs only for IPv6 clients                            Y
+
+- Multiplexing policy requests and DNS                                 Y
+  queries via select()
+
+- probably milter capabilities
+
+- probably external hooks at certain stages
+
+- porting for other MTAs (helpers welcome)
+
+- packaging for other systems (helpers welcome)
+
+- IPv6 support
+  Need someone who can do this, since we have 
+  no IPv6 environment for testing here. 
+  For now IPv6 clients are recognized and pass 
+  unchecked.
+
+- proper documentation (helpers welcome)            P                  Y
+
+- man page for config settings                      P                  Y
+
+- probably SPF support (scored)
+  Problem: DUL listed DynDNS MX users might get 
+  rejected if they use a "mail from:" like 
+  user@yahoo.com but deliver direct.
+
+- SNSD (Spammy NS Detection)                                           Y
+  Shall detect NS servers which excessive host 
+  Spam-Domains
+
+- ADD  (Abused Domain Detection)                                       Y
+  Shall detect Domains which are frequently 
+  forged and may not be used by Dynamic Clients 
+  unless they got a DynDNS MX as verified HELO
+
+- postfix restriction classes support               P                  Y
+  (postfix doesn't recognize 
+  "restrictionclass some explanatory text" as 
+  restriction-class-request even though 
+  "restrictionclass" is defined in main.cf)
+
+- review cache efficiency and avoidance of          P                  Y
+  dictionary attacks
