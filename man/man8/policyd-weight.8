@@ -29,9 +29,9 @@ add a system
 account for $USER (default: polw)
 
 Policyd-weight can operate in master.cf \fBor\fR daemon mode. In master.cf
-mode it uses postfix' \fBspawn\fR(8), which results in number of simultanous 
+mode it uses postfix' \fBspawn\fR(8), which results in number of simultaneous
 requests perl instances. In daemon mode it uses shared memory and forks on 
-load, and only if all childs are busy.
+load, and only if all child processes are busy.
 
 At the time of writing the man-pages for policyd-weight assume a postfix
 installation. It has been reported that policyd-weight works with other MTAs

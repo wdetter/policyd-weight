@@ -86,12 +86,16 @@ Retry a query without response after that many seconds
 If that many queries fail, the mail is accepted with \fB$MAXDNSERRMSG\fR.
 .br
 In total DNS queries this means: $MAXDNSERR * $DNS_RETRIES
+.IP "\fB$IGNORE_RFC1918_A\fR (default: 0)"
+.br
+If enabled (1) A records with RFC1918 addresses aren't treated as bogus
+addresses by policyd-weight and therefore bogus_mx_score isn't added.
 
 .SH "MISC SETTINGS"
 .ad
 .fi
 .IP "\fB$MAINTENANCE_LEVEL\fR (default: 5)"
-After that many policy requests the cache (and in daemon mode childs)
+After that many policy requests the cache (and in daemon mode child processes)
 checks for configuration file changes
 
 .IP "\fB$MAXIDLECACHE\fR (default: 60)"
@@ -160,7 +164,7 @@ How many seconds a child may be idle before it dies (daemon mode)
 Process limit on how many processes policyd-weight will spawn (daemon mode)
 
 .IP "\fB$MIN_PROC\fR (default: 2)"
-Minimum childs which are kept alive in idle times (daemon mode)
+Minimum child processes which are kept alive in idle times (daemon mode)
 
 .IP "\fB$PUDP\fR (default: 0)"
 .br
@@ -303,19 +307,16 @@ can control a immediate REJECT with \fB$MAXDNSBLHITS\fR and/or
 The default is:
 
 @dnsbl_score = (
-    "dynablock.njabl.org",  3.25,   0,      "DYN_NJABL",
-    "dnsbl.njabl.org",      4.25,   -1.5,   "BL_NJABL",
-    "bl.spamcop.net",       1.75,   -1.5,   "SPAMCOP",
-    "sbl-xbl.spamhaus.org", 4.35,   -1.5,   "SBL_XBL_SPAMHAUS",
-    "list.dsbl.org",        4.35,   0,      "DSBL_ORG",
-    "ix.dnsbl.manitu.net",  4.35,   0,      "IX_MANITU",
-    "relays.ordb.org",      3.25,   0,      "ORDB_ORG"
+    "pbl.spamhaus.org",     3.25,   0,      "DYN_PBL_SPAMHAUS",
+    "sbl-xbl.spamhaus.org", 4.35,   \-1.5,   "SBL_XBL_SPAMHAUS",
+    "bl.spamcop.net",       3.75,   \-1.5,   "SPAMCOP",
+    "ix.dnsbl.manitu.net",  4.35,   0,      "IX_MANITU"
 .br
 );
 
 .IP "\fB@rhsbl_score\fR (default: see below)"
 Define a list of RHSBL host which are queried for the sender domain. Results
-get additionaly scores of 0.5 * DNSBL results and \fB@rhsbl_penalty_score\fR.
+get additionally scores of 0.5 * DNSBL results and \fB@rhsbl_penalty_score\fR.
 A list of RHSBL hosts to be queried must be build as follows:
 .br
 
@@ -332,15 +333,12 @@ A list of RHSBL hosts to be queried must be build as follows:
 The default is:
 
 @rhsbl_score = (
-    "rhsbl.ahbl.org",              1.8,     0,  "AHBL",
-    "dsn.rfc-ignorant.org",        3.2,     0,  "DSN_RFCI",
-    "postmaster.rfc-ignorant.org", 1 ,      0,  "PM_RFCI",
-    "abuse.rfc-ignorant.org",      1,       0,  "ABUSE_RFCI"
+    "multi.surbl.org",      4,      0,      "SURBL"
 .br
 );
 
 .IP "\fB@rhsbl_penalty_score\fR (3.1, 0)"
-This score will be added to each RHSBL hit if following criterias are met:
+This score will be added to each RHSBL hit if following criteria are met:
 
     Sender has a random local-part (i.e. yztrzgb@example.tld)
 
