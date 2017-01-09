@@ -1,0 +1,215 @@
+0.1.14                                                              May 10, 2007
+
+
+                          policyd-weight documentation
+
+
+                    1.0 ............ What is policyd-weight
+                    1.1 ........ What is policyd-weight not
+                    1.2 ..... Who should use policyd-weight
+                    1.3 ...................... Requirements 
+                    
+                    2.0 .................. How does it work
+                    2.1 .................. How to set it up
+                    2.2 ... How to read/understand the logs
+                    
+                    3.0 ............................ Thanks
+
+
+
+
+
+
+
+
+
+First things first. This documentation IS INCOMPLETE and does not always  
+reflect the current state of the project which is still beta. To get an 
+additional picture I suggest to also read the changelog (changes.txt). 
+Documentation will be updated as soon as I have a satisfactory stable release 
+in terms of: optimal usage of possible techniques, no more techniques left, 
+optimal resource usage, full reliability.
+
+I invite everyone to help on the documentation part, as this is the most 
+difficult and laborious - and my English is only good enough to get a drink at 
+the local pub or to ask for the right bus station; you'll know what I mean 
+sooner or later  :-)
+
+--
+rob
+
+
+
+
+
+
+                                      --
+
+
+
+
+
+
+1.0 What is policyd-weight
+
+    policyd-weight is a policy server for Postfix written in Perl to score
+    
+    - DNSBLs/RHSBLs
+    - HELO argument
+    - MAIL FROM: argument
+    - Client IP address
+    - DNS client/HELO/FROM entries (A/16 A/24 A/32, PTR/FQDN and Parent Domains
+      MX/16 MX/24 MX/32 for their correctness respectively whether they match.
+
+    Most MTAs have checks for these things built-in, but unfortunately, those 
+    checks are often too restrictive, one hit will cause important mails to 
+    get rejected. Thus most companies are forced to have a rather non-
+    restrictive and even insecure MTA setup so they don't lose important 
+    mails. policyd-weight is intented to be used right after the RCPT TO 
+    command. This way neither the mail headers nor the mail body must be 
+    received. This behaviour is different from other filters that must parse 
+    (and receive) the complete mail.
+
+    With the policyd-weight approach we can reject obviously faked mails and 
+    MTAs that are listed in too many DNSBLs or are poorly configured. To avoid 
+    using extra bandwidth for DNS queries policyd-weight caches the most     
+    frequent client/sender combinations. Also, if DNS lookups are necessary 
+    it does this intentionally serialized to keep lookups to a minimum.
+
+
+    NOTE: It takes some time for new SPAM mailers on the Internet to get listed 
+          in DNSBLs, if they behave well and don't forge everything 
+          SPAM may appear as normal mail. 
+          Filters such as SpamAssassin or amavisd will parse the mail and can 
+          report it to DNSBLs if set up this way (consult your SPAM/virus  
+          scanner's manual).
+
+
+1.1 What is policyd-weight not
+
+    policyd-weight is NOT a SPAM or Virus Filter - as it doesn't parse
+    the contents of the mail.
+
+    Also policyd-weight is not able to reject Mails bounced or forwarded by 
+    correct MTAs.
+    Example: you have an account at yahoo.com, and a have set it to forward
+    mail to your company account. yahoo.com sends with correct MTAs, and thus
+    SPAM received from your yahoo.com account will pass this filter.
+
+
+1.2 Who should use policyd-weight
+
+    For now: for Postfix users that receive or relay mail via SMTP and for 
+    people that 
+    - receive lots of e-mails caught by SpamAssassin or amavisd 
+      (I'm talking about +300/day). 
+    - want to reduce bandwidth-usage caused by bogus mails 
+      (forged SPAM/virus mails)
+    - want to reduce CPU usage caused by scanning bogus mails.
+    - don't want to lose legitimate mails due to overly restrictive 
+      header checks
+    - want to reduce bounce mails from internal servers or filters
+
+
+1.3 Requirements
+
+    Postfix       version 2.1 or higher (tested with 2.1.5 and 2.3.1)
+    Perl 5.8      version 5.8 recommended, 5.6 might work, too
+    Perl modules  Fcntl (standard in Perl 5.8.8)
+                  Sys::Syslog
+                  Net::DNS
+
+    Mail must be accepted directly from the Internet (aka first in line)
+    A fast caching DNS server in your network is highly recommended!
+   
+
+2.0 How does it work
+
+    Well, slightly different from beta to beta. 
+    -> to be continued after a stable release
+
+
+2.1 How to set it up
+
+    - copy policyd-weight to the proper location for your OS, i.e.
+      /usr/local/bin/policyd-weight
+
+    - set correct permissions:
+      chown root /usr/local/bin/policyd-weight
+      chgrp wheel /usr/local/bin/policyd-weight
+      chmod 0755 /usr/local/bin/policyd-weight
+
+    - create a Unix system account for user and group "polw",
+      the user does not need a shell or a home directory
+
+    - create an rc init script or manage otherwise so that
+      "/usr/local/bin/policyd-weight start" gets executed before
+      Postfix at boot-time
+
+    - remove unnecessary reject_rbl_client and reject_rhsbl_client checks 
+      from Postfix' main.cf
+
+    - edit:
+    [main.cf]:
+
+    smtpd_recipient_restrictions =
+        permit_mynetworks,
+        ...
+        reject_unauth_destination,
+        check_policy_service inet:127.0.0.1:12525
+        ...
+
+    Important, keep your old SASL permits (permit_sasl_authenticated), they 
+    must come before check_policy_service
+
+    If you are using Postfix servers on different hosts you can let other 
+    Postfix instances ask the server on which policyd-weight runs by using
+    in their main.cf:
+    
+    smtpd_recipient_restrictions =
+        ...
+        reject_unauth_destination
+        check_policy_service inet:$POLICY_SERVER_IP:12525
+    
+    where $POLICY_SERVER_IP needs to be replaced with the IP of the server
+    which runs policyd-weight.
+
+    Also you need to set $BIND_ADDRESS = 'all'; in /policyd-weight.conf
+    Make sure that only your own Postfix servers are allowed to connect to
+    that port by adjusting your firewall rules. policyd-weight has NO ACL
+    mechanism for that due to performance and anti-DoS reasons. 
+
+
+    For adjusting scores or other policyd-weight parameters you can create
+    /etc/policyd-weight.conf and insert the changed parameter/value there.
+    To see the available configuration options execute
+    "policyd-weight defaults". It is good practice to only add changed 
+    parameters to the config file and omit the defaults, so the file
+    can more easily be maintained.
+
+    "policyd-weight --help" gives a short help on how to use the 
+    command-line switches.
+
+
+2.2 How to read/understand the logs
+
+    To see mails rejected by policyd-weight:
+
+    	grep "policyd-weight.*action=" /var/log/maillog | grep -v DUNNO
+    
+    To see mails accepted by policyd-weight:
+
+    	grep "policyd-weight.*action=" /var/log/maillog | grep DUNNO
+
+    ...to be continued.
+
+
+3.0 Thanks
+
+    Ralf Hildebrandt, it was him who set me on fire, also for his tests.
+    Bob Tito, for testing and feeding me with results
+    Philipp Koller for his patches and help on Solaris, documentation and 
+    website.
+    All Spammers that provided me with food and enlargement pills.
+    To the mailing-list users which reported bugs and odd behavior.
+

@@ -1,0 +1,387 @@
+.TH policyd-weight.conf 5 "Aug 25th, 2006"
+.ad
+.fi
+.SH "NAME"
+policyd-weight.conf
+\-
+policyd-weight configuration parameters
+.SH "STATUS"
+Beta, Documentation incomplete
+
+.SH "DESCRIPTION"
+.ad
+.fi
+\fBpolicyd-weight\fR uses a \fBperl\fR(1) style configuration file which it
+reads on startup. The cache re-reads the configuration after 
+\fB$MAINTENANCE_LEVEL\fR (default: 5) queries. If \fB-f\fR is not specified, 
+it searches for configuration files on following locations:
+.P
+ /etc/policyd-weight.conf
+.br 
+ /usr/local/etc/policyd-weight.conf
+.br
+ ./policyd-weight.conf
+
+.SH "CACHE SETTINGS"
+.ad
+.fi
+.IP "\fB$CACHESIZE\fR (default: 2000)"
+Set the minimum size of the SPAM cache.
+
+.IP "\fB$CACHEMAXSIZE\fR (default: 4000)"
+Set the maximum size of the SPAM cache.
+
+.IP "\fB$CACHEREJECTMSG\fR 
+.br
+(default: 550 temporarily blocked because of previous errors)"
+
+Set the SMTP status code and a explanatory message for rejected mails due to
+cached results
+
+.IP "\fB$NTTL\fR (default: 1)
+The client is penalized for that many retries.
+
+.IP "\fB$NTIME\fR (default: 30)
+The \fB$NTTL\fR counter will only be decremented if the client waits at least
+\fB$NTIME\fR seconds.
+
+.IP "\fB$POSCACHESIZE\fR (default: 1000)"
+Set the minimum size of the HAM cache.
+
+.IP "\fB$POSCACHEMAXSIZE\fR (default: 2000)"
+Set the maximum size of the HAM cache.
+
+.IP "\fB$PTTL\fR (default: 60)"
+After that many queries the HAM entry must succeed one run through the
+RBL checks again.
+
+.IP "\fB$PTIME\fR (default: 3h)"
+after $PTIME in HAM Cache the client must pass one time the RBL checks again.
+Values must be nonfractal. Accepted time-units: s(econds), m(inutes), 
+h(ours), d(ays)
+
+.IP "\fB$TEMP_PTIME\fR (default: 1d)"
+The client must pass this time the RBL 
+checks in order to be listed as hard-HAM. After this time the client will pass
+immediately for PTTL within PTIME. Values must be non-fractal.
+Accepted time-units: s(econds), m(inutes), h(ours), d(ays)
+
+.SH "DEBUG SETTINGS"
+.ad
+.fi
+.IP "\fB$DEBUG\fR (default: 0)"
+Turn debugging on (1) or off (0)
+
+.SH "DNS SETTINGS"
+.ad
+.fi
+.IP "\fB$DNS_RETRIES\fR (default: 2)"
+.br
+How many times a single DNS query may be repeated
+.IP "\fB$DNS_RETRY_IVAL\fR (default: 2)"
+.br
+Retry a query without response after that many seconds
+.IP "\fB$MAXDNSERR\fR (default: 3)"
+.br
+If that many queries fail, the mail is accepted with \fB$MAXDNSERRMSG\fR.
+.br
+In total DNS queries this means: $MAXDNSERR * $DNS_RETRIES
+
+.SH "MISC SETTINGS"
+.ad
+.fi
+.IP "\fB$MAINTENANCE_LEVEL\fR (default: 5)"
+After that many policy requests the cache (and in daemon mode childs)
+checks for configuration file changes
+
+.IP "\fB$MAXIDLECACHE\fR (default: 60)"
+After that many seconds of being idle the cache checks for configuration
+file changes.
+
+.IP "\fB$PIDFILE\fR (default: /var/run/policyd-weight.pid)"
+Path and filename to store the master pid (daemon mode)
+
+.IP "\fB$LOCKPATH\fR (default: /tmp/.policyd-weight/)"
+Directory where policyd-weight stores sockets and lock-files/directories. Its
+argument must contain a trailing slash.
+
+.IP "\fB$SPATH\fR (default: $LOCKPATH.'/polw.sock')"
+Path and filename which the cache has to use for communication.
+
+.IP "\fB$TCP_PORT\fR (default: 12525)"
+TCP port on which the policy server listens (daemon mode)
+
+.IP "\fB$BIND_ADDRESS\fR (default: '127.0.0.1')"
+IP Address on which policyd-weight binds. Currently either only one or all
+IPs are supported. Specify 'all' if you want to listen on all IPs.
+
+.IP "\fB$SOMAXCONN\fR (default: 1024)"
+Maximum connections which policyd-weight accepts. This is set high enough to
+cover most scenarios.
+
+.IP "\fB$USER\fR (default: polw)"
+Set the user under which policyd-weight runs
+.IP "\fB$GROUP\fR (default: $USER)"
+Set the group under which policyd-weight runs
+
+.SH "OUTPUT AND LOG SETTINGS"
+.ad
+.fi
+.IP "\fB$ADD_X_HEADER\fR (default: 1)"
+Insert a X-policyd-weight: header with evaluation messages.
+.br
+1 = on, 0 = off
+
+.IP "\fB$LOG_BAD_RBL_ONLY\fR (default: 1)"
+Insert only RBL results in logging strings if the RBL score changes the overall
+score. Thus RBLs with a GOOD SCORE of 0 don't appear in logging strings if the
+RBL returned no BAD hit.
+.br
+1 = on, 0 = off
+
+.IP "\fB$MAXDNSBLMSG\fR (default: 550 Your MTA is listed in too many DNSBLs)"
+The message sent to the client if it was reject due to \fB$MAXDNSBLHITS\fR 
+and/or \fB$MAXDNSBLSCORE\fR.
+
+.IP "\fB$REJECTMSG\fR (default: 550 Mail appeared to be SPAM or forged. Ask your Mail/DNS-Adminisrator to correct HELO and DNS MX settings or to get removed from DNSBLs)"
+.br
+
+Set the SMTP status code for rejected mails and a message why the action was 
+taken
+
+.SH "RESOURCE AND OPTIMIZATIONS"
+.ad
+.fi
+
+.IP "\fB$CHILDIDLE\fR (default: 120)"
+How many seconds a child may be idle before it dies (daemon mode)
+
+.IP "\fB$MAX_PROC\fR (default: 50)"
+Process limit on how many processes policyd-weight will spawn (daemon mode)
+
+.IP "\fB$MIN_PROC\fR (default: 2)"
+Minimum childs which are kept alive in idle times (daemon mode)
+
+.IP "\fB$PUDP\fR (default: 0)"
+.br
+Set persistent UDP connections used for DNS queries on (1) or off (0).
+
+
+.SH "SCORE SETTINGS"
+.ad
+.fi
+Positive values indicate a bad (SPAM) score, negative values indicate a 
+good (HAM) score.
+
+.IP "\fB@bogus_mx_score\fR (2.1, 0)"
+If the sender domain has neither MX nor A records or these records resolve
+to a bogus IP-Address (for instance private networks) then this check asigns
+the full score of bogus_mx_score. If there is no MX but an A record of the
+sender domain then it receives a penalty only if DNSBL-listed.
+
+Log Entries: 
+
+\fBBOGUS_MX\fR
+.in +1
+The sender A and MX records are bogus or empty.
+.in -1
+
+\fBBAD_MX\fR
+.in +1
+The sender domain has an empty or bogus MX record and the client is DNSBL 
+listed.
+.in -1
+
+
+Related RFCs:
+
+[1918] Address Allocation for Private Internets
+.br
+[2821] Simple Mail Transfer Protocol (Sect 3.6 and Sect 5)
+
+
+.IP "\fB@client_ip_eq_helo_score\fR (1.5, -1.25)"
+Define scores for the match of the reverse record (hostname) against the
+HELO argument. Reverse lookups are done, if the forward lookups failed and are
+not trusted.
+
+Log Entries: 
+
+\fBREV_IP_EQ_HELO\fR
+.in +1
+The  Client's  PTR  matched  the  HELO  argument.
+.in -1
+
+\fBREV_IP_EQ_HELO_DOMAIN\fR
+.in +1
+Domain portions  of Client PTR and HELO argument matched.
+.in -1
+
+\fBRESOLVED_IP_IS_NOT_HELO\fR
+.in +1
+Client  PTRs  found   but  did  not  match  HELO argument.
+.in -1
+
+.IP "\fB@helo_score\fR (1.5, -2)"
+Define scores for the match of the Client IP and its /24 subnet against the A 
+records of HELO or MAIL FROM domain/host. It also holds the bad score for MX 
+verifications.
+
+Log Entries:
+
+\fBCL_IP_EQ_HELO_NUMERIC\fR
+.in +1
+Client IP matches the [IPv4] HELO.
+.in -1
+
+\fBCL_IP_EQ_FROM_IP\fR
+.in +1
+Client IP matches  the A record of the MAIL FROM sender domain/host.
+.in -1
+
+\fBCL_IP_EQ_HELO_IP\fR
+.in +1
+Client  IP  matches  the  A  record  of the HELO argument.
+.in -1
+
+\fBCL_IP_NE_HELO\fR
+.in +1
+The IP and  the /24  subnet did  not  match A/MX records  of  HELO  and MAIL
+FROM  arguments and their subdomains.
+.in -1
+
+.IP "\fB@helo_from_mx_eq_ip_score\fR (1.5, -3.1)"
+Define scores for the match of Client IP against MX records. Positive (SPAM) 
+values are used in case the MAIL FROM matches not the HELO argument 
+\fBAND\fR the client seems to be dynamic \fBAND\fR the client is no MX for HELO
+and MAIL FROM arguments. The total DNSBL score is added to its bad score.
+
+Log Entries:
+
+\fBCL_IP_EQ_FROM_MX\fR
+.in +1
+Client IP  matches  the MAIL FROM domain/host MX record
+.in -1
+
+\fBCL_IP_EQ_HELO_MX\fR
+.in +1
+Client IP matches the HELO domain/host MX record
+.in -1
+
+\fBCLIENT_NOT_MX/A_FROM_DOMAIN\fR
+.in +1
+Client is not a verified  HELO and doesn't match A/MX records of MAIL FROM 
+argument
+.in -1
+
+\fBCLIENT/24_NOT_MX/A_FROM_DOMAIN\fR
+.in +1
+Client's subnet does  not  match A/MX records of the MAIL FROM argument
+.in -1
+
+.IP "\fB$dnsbl_checks_only\fR (default: 0)"
+Disable HELO/RHSBL verifications and the like. Do only RBL checks. 
+.br
+1 = on, 0 = off
+.IP "\fB@dnsbl_score\fR (default: see below)"
+A list of RBLs to be checked. If you want that a host is not being evaluated
+any further if it is listed on several lists or a very trustworthy list you
+can control a immediate REJECT with \fB$MAXDNSBLHITS\fR and/or 
+\fB$MAXDNSBLSCORE\fR. A list of RBLs must be build as follows:
+.br
+
+@dnsbl_score = (
+.br
+    RBLHOST1,   HIT SCORE,  MISS SCORE,     LOG NAME,
+.br
+    RBLHOST2,   HIT SCORE,  MISS SCORE,     LOG NAME,
+.br
+    ...
+.br
+);
+.br
+The default is:
+
+@dnsbl_score = (
+    "dynablock.njabl.org",  3.25,   0,      "DYN_NJABL",
+    "dnsbl.njabl.org",      4.25,   -1.5,   "BL_NJABL",
+    "bl.spamcop.net",       1.75,   -1.5,   "SPAMCOP",
+    "sbl-xbl.spamhaus.org", 4.35,   -1.5,   "SBL_XBL_SPAMHAUS",
+    "list.dsbl.org",        4.35,   0,      "DSBL_ORG",
+    "ix.dnsbl.manitu.net",  4.35,   0,      "IX_MANITU",
+    "relays.ordb.org",      3.25,   0,      "ORDB_ORG"
+.br
+);
+
+.IP "\fB@rhsbl_score\fR (default: see below)"
+Define a list of RHSBL host which are queried for the sender domain. Results
+get additionaly scores of 0.5 * DNSBL results and \fB@rhsbl_penalty_score\fR.
+A list of RHSBL hosts to be queried must be build as follows:
+.br
+
+@rhsbl_score = (
+.br 
+    RHSBLHOST1,  HIT SCORE,  MISS SCORE,     LOG NAME,
+.br
+    RHSBLHOST2,  HIT SCORE,  MISS SCORE,     LOG NAME,
+.br
+    ...
+.br
+);
+.br
+The default is:
+
+@rhsbl_score = (
+    "rhsbl.ahbl.org",              1.8,     0,  "AHBL",
+    "dsn.rfc-ignorant.org",        3.2,     0,  "DSN_RFCI",
+    "postmaster.rfc-ignorant.org", 1 ,      0,  "PM_RFCI",
+    "abuse.rfc-ignorant.org",      1,       0,  "ABUSE_RFCI"
+.br
+);
+
+.IP "\fB@rhsbl_penalty_score\fR (3.1, 0)"
+This score will be added to each RHSBL hit if following criterias are met:
+
+    Sender has a random local-part (i.e. yztrzgb@example.tld)
+
+ or MX records of sender domain are bogus
+
+ or FROM matches not HELO
+
+ or HELO is untrusted (Forward record matched, reverse record 
+    did not match)
+
+.IP "\fB$MAXDNSBLHITS\fR (default: 2)"
+If the client is listed in more than $MAXDNSBLHITS RBLs it will be rejected
+immediately with \fB$MAXDNSBLMSG\fR and without further evaluation. Results
+are cached by default.
+
+.IP "\fB$MAXDNSBLSCORE\fR (default: 8)"
+If the BAD SCOREs of \fB@dnsbl_score\fR listed RBLs reach a level greater than 
+$MAXDNSBLSCORE the client will be rejected immediately with \fB$MAXDNSBLMSG\fR 
+and without further evaluation. Results are cached by default.
+
+.IP "\fB$REJECTLEVEL\fR (default: 1)"
+Score results equal or greater than this level will be rejected with 
+\fB$REJECTMSG\fR
+
+
+
+.SH "SEE ALSO"
+.na
+.nf
+policyd-weight(8), Policyd-weight daemon
+perl(1), Practical Extraction and Report Language
+perlsyn(1), Perl syntax
+access(5), Postfix SMTP access control table
+.IP
+.SH "LICENSE"
+.na
+.nf
+GNU General Public License
+.SH "AUTHOR"
+.na
+.nf
+Robert Felber <r.felber@ek-muc.de>
+Autohaus Erich Kuttendreier
+81827 Munich, Germany

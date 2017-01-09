@@ -1,3 +1,16 @@
+policyd-weight (0.1.15.2-12) unstable; urgency=low
+
+  * debian/README.Debian 
+    + updated list of default block lists (Closes: #841944)
+  * Removed spelling error in previous changelog entry
+  * Removed whitespaces in changelog
+  * Updated 04_fix_spelling_man.patch to fix some more spelling errors
+    in manpages
+  * Updated standards version to 3.9.8
+  * Update to debhelper 10
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Sat, 19 Nov 2016 17:29:23 +0100
+
 policyd-weight (0.1.15.2-11) unstable; urgency=low
 
   * debian/postrm
@@ -15,19 +28,19 @@ policyd-weight (0.1.15.2-11) unstable; urgency=low
   * Add 13_fix_default_rhsbl_dnsbl_in_man5.patch which updates default
     dnsbls/rhsbls in man5 manpage
   * Add 14_ignore_rfc1918_a_records_config_option.patch which introduces
-    new config config option $IGNORE_RFC1918_A. If enabled A records with
-    RFC1918 addresses aren't treated as bogus addresses by policyd-weight
-    and therefore bogus_mx_score is not added. Updated sample configuration
+    new config option $IGNORE_RFC1918_A. If enabled A records with RFC1918
+    addresses aren't treated as bogus addresses by policyd-weight and 
+    therefore bogus_mx_score is not added. Updated sample configuration
     and man5 manpage (Closes: #799314)
   * Add closing bug in previous changelog entry
-	
- -- Werner Detter <werner@aloah-from-hell.de>  Mon, 30 Nov 2015 21:35:14 +0100
+
+ -- Werner Detter <werner@aloah-from-hell.de>  Tue,  1 Dec 2015 23:17:14 +0100
 
 policyd-weight (0.1.15.2-10) unstable; urgency=low
 
   * Add 12_del_rhsbl.ahbl.org.patch which removes rhsbl.ahbl.org list due
     to service shutdown (Closes: #774772)
-	
+
  -- Werner Detter <werner@aloah-from-hell.de>  Wed,  7 Jan 2015 07:30:14 +0100
 
 policyd-weight (0.1.15.2-9) unstable; urgency=low
@@ -54,7 +67,7 @@ policyd-weight (0.1.15.2-7) unstable; urgency=low
 
 policyd-weight (0.1.15.2-6) unstable; urgency=low
 
-  * Updated standards version to 3.9.5	
+  * Updated standards version to 3.9.5
   * debian/control added dependency on libio-socket-inet6-perl
   * debian/init.d removed internal api call /lib/init/vars.sh from init script
   * Add 09_fix_net_dns_usage.patch which fixes infinite loop when dns resolver
@@ -63,7 +76,7 @@ policyd-weight (0.1.15.2-6) unstable; urgency=low
  -- Werner Detter <werner@aloah-from-hell.de>  Sun, 15 Dec 2013 17:05:19 +0100
 
 policyd-weight (0.1.15.2-5) unstable; urgency=high
-	
+
   * Add 08_del_dnsbl.njabl.org.patch which removes dnsbl.njabl.org list due
     to service shutdown on 2013-03-01 (Closes: #702838)
   * Bumped standard versions to 3.9.4
@@ -71,14 +84,14 @@ policyd-weight (0.1.15.2-5) unstable; urgency=high
  -- Werner Detter <werner@aloah-from-hell.de>  Tue, 12 Mar 2013 20:23:14 +0100
 
 policyd-weight (0.1.15.2-4) unstable; urgency=low
-	
+
   * Add 07_del_rfc-ignorant.org.patch which removes rfc-ignorant.org 
     lists due to service shut down on 2012-11-30
 
  -- Werner Detter <werner@aloah-from-hell.de>  Mon, 17 Sep 2012 09:32:23 +0100
 
 policyd-weight (0.1.15.2-3) unstable; urgency=low
-	
+
   * Updating standards version to 3.9.3
   * Fixed 02_cacherejectmsg.patch (modify $CACHEREJECTMSG instead
     of $REJECTMSG), thanks to Marcel Meckel (Closes: #598844) 

@@ -1,0 +1,681 @@
+0.1.15 beta-2
+
+- (maint)     removed rbl.ipv6-world.net
+
+
+0.1.15 beta-1 
+
+- (fix)       if the (postfix-ly verified, i.e not unknown) client hostname
+              belongs to the sender domain then this was not honoured
+              WARNING: the fix required a rather invasive reordering, this
+              might have broken other stuff. ALPHA ALPHA ALPHA!
+
+- (fix)       cache: remove stale lock files if -k is specified.
+
+- (info)      cache startup logging-context improved
+
+- (port)      changed shebang to #!/usr/bin/env perl
+
+- (feat)      Started IPv6 support by Jonas Genannt
+
+- (maint)     removed dsbl.org, gone
+
+
+0.1.14 beta-17
+
+- (security)  Using File::Spec->canonpath for normalization (trailing slashes)
+              Check ownership of real directories to avoid race attacks
+              for symlinks.
+              Thanks to Robert Buchholz.	
+
+
+0.1.14 beta-16 (not released)
+
+- (security)  The check for symlinked directories was half complete.
+              perl ignores -l if the argument has a trailing slash.
+              Thanks to Andrej Kacian.
+
+ 
+0.1.14 beta-15
+
+- (security)  $LOCKPATH and its contents weren't checked for being
+              a symlink which. Thanks to Chris Howells and Andrej Kacian.
+
+- (fix)       "dedicated" added to the exclusion list for dialup
+              checks. A better approach would be to let the user
+              configure dialup and exclude patterns.
+
+
+0.1.14 beta-14
+
+- (change)    rbls.org link changed to robtext.com
+
+- (change)    results with 'rc:' as action are not cached
+
+- (fix)       regexp check for dynamic helo/client did hit also some
+              clients with "static"
+
+- (fix)       helo numeric check was too fuzzy.
+
+- (fix)       master didn't read config after policyd-weight reload
+
+
+- (fix)       HELO_SEEMS_DIALUP may have scored even if the IP is listed
+              for the sender domain.
+
+- (fix)       An interrupt of policyd-weight -s may cause a SIGPIPE
+              which killed the cache
+
+
+- (change)    Implemented $NS list. Useful for users with split
+              horizon DNS
+
+- (fix)       don't cache rejections which were deferred (4xx and friends)
+
+
+- (fix)       helo_numeric_score didn't catch [n.n.n.n] helos
+
+
+- (fix)       Header was not included if $dnsbl_checks_only = 1; and
+              $ADD_X_HEADER = 1; - Thanks to J. Genannt
+
+- (fix)       Corrected handling of [n.n.n.n] HELOs and address-literals
+              as sender (long standing issue)
+
+- (change)    Introduced @dnsbl_checks_only_regexps in order to skip
+              DNS checks for certain client hostnames
+
+- (change)    Added -D (Don't detach) switch for daemon-tools/runit users
+
+- (change)    Added signals handlers for most of signals so that they are
+              at least logged, also, provide a perl backtrace.
+
+- (change)    prerequisite steps for providing coredumps (build coredump
+              directories, chdir) - coredumps are non-trivial:
+              we start as root, change uid. At this moment coredumps
+              are denied by kernel in order to protect root-data. The only 
+              workaround would be, to start cache and master via system() 
+              after changing uid
+
+- (change)    In daemon mode wrongly crafted policy requests don't lead
+              to a child-exit anymore, only the connection is closed
+
+- (change)    log-facilities other than 'info' are now mentioned in log-lines
+
+- (change)    SMTP information such as client, helo, sender and to are now
+              logged in each log-message. If $DEBUG is set this also logs
+              the instance variable.
+
+- (fix)       rbl_lookup used sometimes 65536 as packet id which appeared
+              to cause problems
+
+- (fix)       Check for syslog absence. If syslog is not available then
+              log temporarily to $LOCKPATH/polw-emergency.log
+
+- (tmpfix)    Introduced $TRY_BALANCE which closes connections to smtpds after
+              they got their response in order to avoid too many established
+              smtpd->policyd-weight (child) connections.
+
+
+0.1.14 beta-5
+
+- (fix)       A lookups were not performed if MX lookups returned
+              NXDOMAIN. Thanks to H. Krohns.
+
+- (change)    Reverse IP == dynhost check corrected such that hosts
+              which have smtp, mail, mx, or static in their FQDN are not
+              treated as dynamic clients. Also the regex for rev.*(home|ip)
+              was corrected. Thanks to H. Krohns.
+
+0.1.14 beta-4
+
+- (fix)       Corrected handling of SERVFAIL and timeouts
+              Thanks to H. Krohns
+
+- (fix)       DNSERRMSG wasn't re-initialized, thus leading to
+              subsequent concatenated responses.
+              Thanks to H. Krohns
+
+0.1.14 beta-3
+
+- (change)    Replaced dynablock.njabl.org with pbl.spamhaus.org
+
+0.1.14 beta-2
+
+- (fix)       FreeBSD:
+                rc cannot handle programs with "-" (dash) in its name
+                correctly. Init script for FBSD does now provide its own
+                stop|start functions.
+
+- (change)    removed dnsbl_hits increasements where the check in question
+              was not a dnsbl check, same goes for total_dnsbl_score
+
+- (change)    Termination of daemon changed. The daemon tries to terminate
+              childrens himself.
+
+- (fix)       rbl_lookup used sometimes 0 for the random DNS packet identifier.
+              It also checked the presence and correctness of this field wrong.
+              (non critical)
+
+- (new)       $enforce_dyndns_score added
+              With this one can control how much he wants to avoid dynamic
+              clients which do not use DynDNS
+
+- (change)    The cache now uses only one query to ask for HAM|SPAM.
+              Thanks to H. Krohns.
+
+- (change)    the $dnsbl_hits score gets only increases if the RBL is a
+              blacklist. This is required to use whitelists in the $dnsbl_score
+              list. Thanks to 'Steve'.
+
+- (change)    The cache can now return hard-whitelists.
+              Enforce N days/hours RBL checks for HAM clients.
+              After N days do each P hours or each R requests a RBL check for
+              HAM cached clients. This should save a good amount of RBL DNS
+              traffic.
+
+- (change)    The delay in seconds for each policy request is now logged via
+              "decided action"
+
+- (change)    The time required for a cache cleanup is now logged, too.
+
+- (scores)    @helo_seems_dialup = (1.5,0)
+              'dsn.rfc-ignorant.org', 3.5, 0, 'DSN_RFCI',
+              ordb.org removed
+
+- (fix)       alarms didn't work on every platform, leading to timeouts
+
+- (fix)       BAD_MX might score even though the sender has an A record
+              which matches the client IP
+
+- (cleanup)   use modules at the beginning, usage() printed as here-doc
+              Suggested by Francis Galiegue
+
+- (cleanup)   Use A queries instead of TXT queries for RBL lookups
+
+- (new)       Cache only the IP if the client was too much DNSBL listed
+              or the client seems to be a dialup or the helo/from verification
+              against IP and subnets failed totally
+              Should help against Dictionary Attacks
+
+- (fix)       On some plattforms setting correct user and groupmemberships
+              is a hard task, we try now two ways to accomplish this
+
+- (new)       One can define to return a restriction class by setting the
+              appropriate messages to "rc:your_restriction_class"
+              Policyd-weight ignores trailing garbage after rc:text messages
+              Example: $REJECTMSG = "rc:greylist";
+
+- (new)       Non-responsive RBLs are skipped for a certain amount of queries.
+
+0.1.14 beta
+
+- (fix)       $< enabled taint mode - which made policyd-weight crash in
+              case of troublesome config files
+
+- (change)    Messages due to die() were reported not appropriate.
+              Old $! variables may have lead to false assumptions.
+
+
+- (change)    FROM_MATCHES_NOT_HELO now also checks whether the SENDER MX
+              lists a host which matches HELO domain (minimizing false 
+              positives or inappropriate spam-scoring)
+
+- (vuln fix)  When $DEBUG = 1; is used then policyd-weight might be vulnerable
+              to a remote format-string attack if the MTA does not avoid it.
+              Also it is open for a local format-string attack in case of
+              $DEBUG = 1;.
+              A syslog message of the cache query could have taken foreign
+              format-string sequences which would have been executed with
+              old Sys::Syslog modules.
+
+- (change)    Floating point numbers sanitized
+
+- (change)    Kids didn't die verbose
+
+- (fix)       call close on DNS sockets only if a socket exists and is 
+              connected
+
+
+- (change)    Initialization of syslog socket exits now informative if it cannot
+              be setup.
+
+- (change)    RHSBL lookups are now half-dnsbl influenced.
+
+
+- (fix)       The perl POSIX module of SuSe 9.0 is buggy. We don't use
+              POSIX for setting UID/EUID/GID/EGID anymore but the provided
+              perl vars from man perlvar | less +/UID
+
+- (change)    -f switch added to hand a configuration file to policyd-weight.
+
+
+- (fix)       FROM_NOT_HELO was too heavily DNSBL influenced
+
+
+- (fix)       Communication between parent and childs wasn't portable
+              Solaris versions of perl didn't unterstand $sock->send
+              for socketpair() created IPC-channels
+
+- (change)    RFCI postmaster and abuse list changed from 1 to 0.1
+              rhsbl_penalty_score changed from 3.3 to 3.1
+
+- (change)    MAXIDLE changed from 120 to 240
+              MIN_PROC changed from 2 to 3
+              POCACHEMAXSIZE changed from 380 to 480
+              CACHEMAXSIZE changed from 380 to 480
+
+
+- (change)    Scores are now computed once, and not twice each check. 
+              Which is just a bit more CPU friendly.
+
+
+- (change)    HELO which couldn't be verified to match IP weren't DNSBL
+              influenced, i.e. the score increases now when also DNSBL-listed.
+
+
+- (change)    syslogs the used config file
+- (change)    shows GROUP infos in debug mode
+
+- (new)       Added "default" action. 'policyd-weight default' will show
+              its defaults and exit.
+              Patch supplied by Philipp Koller, thanks.
+
+
+- (fix)       FROM_MULTIPARTED check made less aggressive.
+              Hosts whose sender or helo verify to the client-ip are
+              not checked for multiple lables. This is a cure for yahoo
+              groups
+
+- (new)       inet/daemon mode  support added, default port 12525
+
+- (new)       checks for bogus MXes of MAIL FROM arg added 
+              (empty, 127/8, 192.168/16, 10/8, 172.16/12)
+              if this check gives true then the mail is DEFERed instead of 
+              REJECTed
+              This check also increases results of other checks
+
+- (new)       Checks for randomized sender addresses added
+
+- (change)    rhsbl check changed as such, that all rhslb entries are queried 
+              now
+
+- (change)    surbl.org added to the default rhsbl hosts
+
+
+- (fix)       The routine to terminate cache versions prior to 0.1.12 beta
+              was buggy. fixed.
+
+- (change)    Included the possibility to DEFER instead of REJECT mail on 
+              configurable strings if the overall score is below DEFER_LEVEL.
+              This way one can DEFER mail on e.g. " IN_SPAMCOP=" listings.
+
+- (fix)       Log entry for FROM_MATCHES_NOT_HELO corrected
+
+- (change/new)  Log outputs also recipient
+
+- (new)       own rbl_lookup routine implemented (for reference see 
+              http://www.policyd-weight.org/rbl_lookup.html)
+              This reduces about 85% of total time and 95% CPU time for RBL 
+              Lookups. If the routine seems to give buggy results you might 
+              try to set $USE_NET_DNS = 1; although it might still be buggy.
+              It uses Net::DNS automatically for perl versions prior to 5.8
+
+- (change/fix)  Cache queries made more reliable. Timeouts implemented
+
+- (fix)         PTR vs HELO/FROM was case-sensitive
+
+
+--------------------------------------------------------------------------------
+0.1.12 beta-4
+
+- don't perform multiparted check of sender domain if client is an MX for that
+  domain (fix)
+
+- cache cleanup process optimized by 80%
+
+- HELO vs FROM check made more reliable (fix)
+
+- CVERSION introduced which replaces the "detect if script has changed" routine
+  which means, that the cache is only being killed on updated when CVERSION 
+  changes.
+
+--------------------------------------------------------------------------------
+0.1.12 beta
+
+- improved multirecipient awareness. It is now possible to build up restriction
+  classes within postfix to either explicitly say "check policy service" or to
+  make user exceptions. This is important for ISP. This was not possible with 
+  previous versions.
+
+- -d debug switch added. In debug mode nothing is sent to syslog but STDOUT
+  also it turns on Net::DNS debugging
+  It prints some perl/OS/Net:DNS/policyd-weight version infos and configuration
+  this switch is NOT FOR USE IN MASTER.CF
+
+- permission/accessibility checks for configuration files added. Syslog if
+  either permission denied, or config is world-writeable. Recommended mode is
+  0644 and owner root, group root (or wheel on bsd).
+
+- cache outsourced to an own cache daemon. Decreases drastically frequent DNS
+  lookups and thus network delays and CPU time.
+  For security reasons policyd-weight must not run as nobody or root. Set up
+  an own user for that and update master.cf (user=$your_user)
+  Several configuration items for the cache have been added
+
+- some scores adjusted to let pass DynDNS MX users with a envelope of 
+  foo@bar.dyndns.org
+  Also the spamcop score has been lowered
+
+- helo_from_mx_eq_ip_score added
+
+- some more scores adjusted
+
+- FROM Domain vs HELO regex check adjusted
+
+- Process UID check added, policyd-weight must have it's own user. Update
+  master.cf
+
+- dynmaic clients whose score cause a REJECT will be rejected with a note:
+  "; please relay via your ISP ($from_domain)"
+
+- critical fix: First perform Sender Domain MX lookups. If the Client is a
+  MX for that Domain, don't do HELO vs FROM pattern matching.
+
+- Halved the weight of RBL results agains HELO/FROM pattern mismatches.
+
+- removed scoring for HELO == dynamic host regexp check if client address ==
+  dynhost check was true. This might (and will) permit more spam to get through.
+  But also some dynamic host MTAs which don't use dyndns possibilities.
+
+--------------------------------------------------------------------------------
+0.1.11 beta
+
+- (fix) Using of appropriate methods for fetching truncated packets via TCP
+  Net::DNS version < 0.50: igntc() (ignore truncated packets)
+  Net::DNS version >= 0.50 force_v4() (force IPv4 usage)
+
+- X-policyd-weight header for multirecipient mail is now inserted only once
+
+- Caching of spam-results happens only if no DNS error (timeout) occured
+
+- RHSBL results are appended at the reject-message
+
+- Messages to STDERR end now in nirvana to don't confuse the SMTPD
+  STDERR messages caused by a die() end up in syslog
+
+- Config errors end in syslog, if config file couldn't be loaded due to a syntax
+  error then we fall back to builtin defaults and append a message to 
+  X-policyd-weight header.
+
+- Scores for from_match_regex_unverified_helo and helo_ip_in_cl16_subnet 
+  adjusted to let pass msn.com mail relayed via hotmail.com
+
+- Order and scores for RHSBL entries adjusted
+
+- (fix) The special recipients postmaster and abuse pass now with DUNNO instant.
+  This was the case for virtual domains.
+
+- (fix) The array for the reverse IP lookup result was build wrong, in some
+  circumstances this may lead to an empty array and thus some _badly_ configured
+  mailer with incorrect DNS (those with broken forward DNS) may have been 
+  blocked.
+
+- (fix) NULL (<>) Sender now pass (RFC compliance)
+
+- LOG_BAD_RBL_ONLY added which logs only successfull RBL hits. If there was
+  no RBL hit, but the "good" score was not equal zero, it is logged though.
+  Default is 1 (ON).
+
+
+--------------------------------------------------------------------------------
+0.1.10 beta
+
+- Caching of positive and negative results added
+
+- (fix) improved error-handling on DNS timeouts and empty objects.
+
+- code optimizations
+  DNS Resolver is created in main
+  reverse IP records get fetched only one time
+
+- cosmetic changes (leading tabs substituted with blanks)
+
+
+--------------------------------------------------------------------------------
+0.1.9 beta
+
+- RHSBL support added
+
+- dnsbl_checks_only switch added
+
+- X-policyd-weight: header on/off switchable
+
+- DNSBLMAXSCORE added
+
+- config file support added
+
+- multipart FROM check/scoring added
+
+- Reverse IP == dynhost check added
+
+- Net::DNS retries and retry interval changed
+
+- Net::DNS support for persistant udp sockets added
+
+- Net::DNS igntc option set to on (0.53 has bugs with truncated packets and
+  tcp connections)
+
+- minor code cleanups (loops removed, regexps optimized, etc) for
+  speedup
+
+- FreeBSD: first GPLed version
+
+
+--------------------------------------------------------------------------------
+0.1.8.1 beta
+
+- set under GPL (http://www.gnu.org/licenses/gpl.txt)
+
+
+--------------------------------------------------------------------------------
+0.1.8 beta
+
+- Return DUNNO in case of IPv6 Clients
+
+- Splitted NJABL to treat dyn RBL listed clients different
+
+- some regex made case-insensitive
+
+- More details for the foreign MTA if HELO checks failed
+
+- Little cleanups for better reading
+
+
+--------------------------------------------------------------------------------
+0.1.7 beta
+
+- REV_IP_EQ_HELO_DOMAIN regex corrected again
+
+- DNSBL scores adjusted
+
+- $total_dnsbl_score added which holds the overall score of positive
+  DNSBL scores. This affects HELO/IP verification
+
+- Return message for too many DNSBL hits changed, rbl.org link added
+  to this message
+
+- Mails pass now with PREPEND instead of DUNNO and adds a X-policyd-weight
+  header containing the detailed score evaluation plus rate
+
+
+--------------------------------------------------------------------------------
+0.1.6 beta
+
+- if HELO IP is in /24 of Client IP then it is treated as helo_ok
+  (this cause less false positives for MTAs which use a different HELO
+   hostname/IP than MTA's hostname/IP; but are in the same
+   domain/subnet - badly written/administrated www mail interfaces are such a 
+   candidate)
+
+
+--------------------------------------------------------------------------------
+0.1.5 beta
+
+- Cleanup (@array[0] changed to $array[0])
+
+- regexp for REV_IP_EQ_HELO_DOMAIN corrected (again)
+
+- typos fixed
+
+- HELO_IP_IN_CL_SUBNET made configurable
+
+
+--------------------------------------------------------------------------------
+0.1.4 beta
+
+- checks for dialup HELOs added
+
+- failed HELO checks for dialup HELOs now increase dnsb_hits counter
+
+
+--------------------------------------------------------------------------------
+0.1.3 beta
+
+- regexp for REV_IP_EQ_HELO_DOMAIN corrected
+
+
+--------------------------------------------------------------------------------
+0.1.2 beta
+
+- REV_IP_EQ_HELO_DOMAIN check rewritten. It checks now only the part before
+  TLD.
+  
+  HELO foo.bar.com
+  Client Host: blah.bar.com
+
+  It checks now, whether the client or HELO "bar" matches against HELO or client
+  "bar".
+
+
+--------------------------------------------------------------------------------
+0.1.1 beta
+
+- REV_IP_EQ_HELO_DOMAIN did not really a domain check, now it does.
+
+
+--------------------------------------------------------------------------------
+0.1.0 beta
+
+- state changed to beta
+
+- some planned knobs removed
+
+- name changed to policyd-weight
+
+
+--------------------------------------------------------------------------------
+0.0.18 alpha 
+
+- changed /24 score to -0.6
+
+- FROM_MATCHES_NOT_HELO gets extra score per DNSBL hit
+
+- if correct MX record for helo, it gets plus -0.5
+
+
+--------------------------------------------------------------------------------
+0.0.17 alpha
+
+- using now MAXDNSBLHITS. Above this level the mail gets REJECTed immediately.
+
+- checking client IP against helo IPs now also tries a /24 check as last resort.
+  The results of this check may reduce the score by -0.20.
+  A CIDR check will never be performed as this is too expensive.
+
+
+--------------------------------------------------------------------------------
+0.0.16 alpha
+
+- added ix.dnsbl.manitu.net
+
+
+--------------------------------------------------------------------------------
+0.0.15 alpha
+
+- (fix) gettings MX/A records now also asks the MAIL FROM: domain/host
+  (reducing "false positives" if client messed up HELO but the from
+   domain has correct DNS records and matches client IP)
+
+
+--------------------------------------------------------------------------------
+0.0.14 alpha
+
+- If MX/A query failed, it gets lower scored than MX/A forged
+
+- More verbose output
+
+- If _ALL_ DNS queries returned NXDOMAIN then return with 450 and DNSERRMSG
+  when not too much dnsbl listed
+
+
+--------------------------------------------------------------------------------
+0.0.13 alpha
+
+- (fix) getting MX/A records of HELO now also asks parent domains
+
+
+--------------------------------------------------------------------------------
+0.0.12 alpha
+
+- (fix) perl DNS module caused warnings and server misconfigured
+  errors when MX record pointed to a CNAME and we treated it
+  as A-record (CNAME RR: print $foo->address == error)
+
+
+--------------------------------------------------------------------------------
+0.0.11 alpha
+
+- added dnsbl.org
+
+
+--------------------------------------------------------------------------------
+0.0.10 alpha
+
+- set $VERBOSE to default 0
+
+
+--------------------------------------------------------------------------------
+0.0.9 alpha
+
+- removed all other handlers, since the
+  # push @foo, "bar";
+  seems to be ignored on some systems (NOTE: '#`-lines should NEVER
+  get parsed by perl)
+  NOTE: I am dumb. VERBOSE was default 1, and my syslog debug ends not
+        in maillog. I thought it ignored the commenting of "testing". 
+
+
+--------------------------------------------------------------------------------
+0.0.8 alpha
+
+- Changed spamcop back to 4 since it would outweight legitimate mails if
+  they are accidentially listed in spamcop (happened in the past (gmx, web.de))
+  And that is not the purpose of this script.
+
+
+--------------------------------------------------------------------------------
+0.0.7 alpha
+
+- Gave spamcop a score of 8 because it seems reasonable and updated fast
+  and is not a DUL list
+
+
+--------------------------------------------------------------------------------
+0.0.6 alpha
+
+- Client IPs which had no MX, A, PTR record at all did not get scored extra.
+
+- tuned scores some more
+
+- unneeded handlers removed from code (cleanup)
